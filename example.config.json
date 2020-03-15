@@ -1,0 +1,15 @@
+{
+    "teachers": {
+        "teacher name": "channel name",
+        "teacher2 name": "channel2 name"
+    },
+    "regex": "regex to filter in",
+    "discord": {
+        "token": "bot token",
+        "guild": "server name"
+    },
+    "register": {
+        "login": "librus login",
+        "password": "librus password"
+    }
+}

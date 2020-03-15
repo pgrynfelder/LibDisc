@@ -7,12 +7,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-DRIVERS_PATH = os.path.abspath('.') + "\drivers\\"
 if os.name == "nt":
+    DRIVERS_PATH = os.path.abspath('.') + "\drivers\\"
     phantomdriver_path = DRIVERS_PATH + "phantomjs.exe"
     chromedriver_path = DRIVERS_PATH + "chromedriver.exe"
     geckodriver_path = DRIVERS_PATH + "geckodriver.exe"
 else:
+    DRIVERS_PATH = os.path.abspath('.') + "/drivers/"
     phantomdriver_path = DRIVERS_PATH + "phantomjs"
     chromedriver_path = DRIVERS_PATH + "chromedriver"
     geckodriver_path = DRIVERS_PATH + "geckodriver"

@@ -40,7 +40,7 @@ class Message:
                 f')')
 
     def __str__(self):
-        return f'>>> {self.teacher}\n{self.date}\n{self.subject}\n{self.text}'
+        return f'>>> {self.teacher}\n{self.date}\n{self.subject}\n\n{self.text}'
 
 
 with open("config.json", encoding="utf_8") as f:

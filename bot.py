@@ -16,19 +16,21 @@ bot = commands.Bot(command_prefix='>')
 messages_queue = asyncio.Queue()
 scrap = scraper.Scraper()
 
+
 @bot.event
 async def on_ready():
     guild = discord.utils.find(lambda g: g.id == GUILD, bot.guilds)
     if guild:
         print(
-        f'{bot.user} is connected to {guild.name}, {guild.id}'
-    )
+            f'{bot.user} is connected to {guild.name}, {guild.id}'
+        )
     else:
         raise Exception("Desired guild not connected, tunring off")
         exit()
     await bot.change_presence(activity=discord.Game(name='librus 😳😳😳 \n(not all languages supported)'))
     get_messages.start()
     post_messages.start()
+
 
 @bot.command(name='off', help='Turns the bot off')
 @commands.has_role('Admin')
@@ -37,10 +39,12 @@ async def turn_off(ctx):
     await bot.close()
     exit()
 
+
 @bot.command(name='clean', help='Deletes specified number of messages')
 @commands.has_role('Admin')
 async def clean(ctx, cnt: int):
     await ctx.channel.purge(limit=cnt)
+
 
 @bot.command(name='fetch', help='Fetch message with specified link')
 @commands.has_role('Admin')
@@ -53,13 +57,14 @@ async def fetch(ctx, message_id: str):
 
 @tasks.loop(minutes=15)
 async def get_messages():
-    print("15 minutes passed, checking for new librus messages") 
+    print("15 minutes passed, checking for new librus messages")
     scrap.login()
     new_messages = scrap.fetch_unread()
     print("Got " + str(len(new_messages)) + " new messages")
     for msg in new_messages:
         await messages_queue.put(msg)
     del new_messages
+
 
 @tasks.loop(seconds=30)
 async def post_messages():

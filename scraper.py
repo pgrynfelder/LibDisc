@@ -38,6 +38,7 @@ class Message:
                 f'"{self.url}",\n'
                 f'"{self.text}",\n'
                 f')')
+
     def __str__(self):
         return f'>>> {self.teacher}\n{self.date}\n{self.subject}\n{self.text}'
 
@@ -79,10 +80,10 @@ class Scraper:
         self.browser.find_element_by_id("LoginBtn").click()
         return True
 
-    def fetch_unread(self) -> set:
+    def fetch_unread(self) -> list:
         self.wait.until(EC.presence_of_element_located(
             (By.ID, "icon-wiadomosci"))).click()
-        messages = set()
+        messages = []
         inbox = self.browser.find_element_by_css_selector(
             "table.decorated > tbody")
         for listing in inbox.find_elements_by_tag_name("tr"):
@@ -105,15 +106,15 @@ class Scraper:
                             "a").get_attribute("href"),
                         labels[4].text
                     )
-                    messages.add(msg)
+                    messages.append(msg)
 
-        matched = set()
+        matched = []
         for msg in messages:
             self.browser.get(msg.url)
             msg.text = self.browser.find_element_by_class_name(
                 "container-message-content").text
             if re.search(REGEX, msg.text):
-                matched.add(msg)
+                matched.append(msg)
         return matched
 
     def fetch_message(self, message_id: str) -> Message:
@@ -128,15 +129,15 @@ class Scraper:
             if labels[0].find_element_by_tag_name("input").get_attribute("value") == message_id:
                 teacher = ""
                 msg = Message(
-                        labels[0].find_element_by_tag_name(
-                            "input").get_attribute("value"),
-                        labels[2].text,
-                        "",
-                        labels[3].text,
-                        labels[3].find_element_by_tag_name(
+                    labels[0].find_element_by_tag_name(
+                        "input").get_attribute("value"),
+                    labels[2].text,
+                    "",
+                    labels[3].text,
+                    labels[3].find_element_by_tag_name(
                             "a").get_attribute("href"),
-                        labels[4].text
-                    )
+                    labels[4].text
+                )
                 for t in TEACHERS.keys():
                     if t in labels[2].text:
                         teacher = t

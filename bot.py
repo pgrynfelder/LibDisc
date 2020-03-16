@@ -51,7 +51,7 @@ async def post_messages():
     while not messages_queue.empty():
         msg = await messages_queue.get()
         channel = discord.utils.get(guild.channels, name=msg.channel)
-        sent = await channel.send(f'\n{msg.teacher}\n{msg.date}\n>>> {msg.text}')
+        sent = await channel.send(f'>>> {msg.teacher}\n{msg.date}\n{msg.subject}\n{msg.text}')
         await sent.pin()
         cnt += 1
     print(f"Posted {cnt} messages")

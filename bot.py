@@ -42,12 +42,20 @@ async def turn_off(ctx):
 async def clean(ctx, cnt: int):
     await ctx.channel.purge(limit=cnt)
 
+@bot.command(name='fetch', help='Fetch message with specified link')
+@commands.has_role('Admin')
+async def fetch(ctx, message_id: str):
+    scrap.login()
+    msg = scrap.fetch_message(message_id)
+    sent = await ctx.channel.send(str(msg))
+    await sent.pin()
+
 
 @tasks.loop(minutes=15)
 async def get_messages():
     print("15 minutes passed, checking for new librus messages") 
     scrap.login()
-    new_messages = scrap.fetch_messages()
+    new_messages = scrap.fetch_unread()
     print("Got " + str(len(new_messages)) + " new messages")
     for msg in new_messages:
         await messages_queue.put(msg)
@@ -60,7 +68,7 @@ async def post_messages():
     while not messages_queue.empty():
         msg = await messages_queue.get()
         channel = discord.utils.get(guild.channels, name=msg.channel)
-        sent = await channel.send(f'>>> {msg.teacher}\n{msg.date}\n{msg.subject}\n{msg.text}')
+        sent = await channel.send(str(msg))
         await sent.pin()
         cnt += 1
     print(f"Posted {cnt} messages")

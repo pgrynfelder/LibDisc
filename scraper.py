@@ -38,6 +38,8 @@ class Message:
                 f'"{self.url}",\n'
                 f'"{self.text}",\n'
                 f')')
+    def __str__(self):
+        return f'>>> {self.teacher}\n{self.date}\n{self.subject}\n{self.text}'
 
 
 with open("config.json", encoding="utf_8") as f:
@@ -77,7 +79,7 @@ class Scraper:
         self.browser.find_element_by_id("LoginBtn").click()
         return True
 
-    def fetch_messages(self):
+    def fetch_unread(self) -> set:
         self.wait.until(EC.presence_of_element_located(
             (By.ID, "icon-wiadomosci"))).click()
         messages = set()
@@ -86,7 +88,7 @@ class Scraper:
         for listing in inbox.find_elements_by_tag_name("tr"):
             labels = listing.find_elements_by_tag_name("td")
             if labels[2].get_attribute("style") == "font-weight: bold;":
-            # if True:
+                # if True:
                 teacher = ""
                 for t in TEACHERS.keys():
                     if t in labels[2].text:
@@ -114,17 +116,44 @@ class Scraper:
                 matched.add(msg)
         return matched
 
+    def fetch_message(self, message_id: str) -> Message:
+        self.wait.until(EC.presence_of_element_located(
+            (By.ID, "icon-wiadomosci"))).click()
+
+        inbox = self.browser.find_element_by_css_selector(
+            "table.decorated > tbody")
+        msg = None
+        for listing in inbox.find_elements_by_tag_name("tr"):
+            labels = listing.find_elements_by_tag_name("td")
+            if labels[0].find_element_by_tag_name("input").get_attribute("value") == message_id:
+                teacher = ""
+                msg = Message(
+                        labels[0].find_element_by_tag_name(
+                            "input").get_attribute("value"),
+                        labels[2].text,
+                        "",
+                        labels[3].text,
+                        labels[3].find_element_by_tag_name(
+                            "a").get_attribute("href"),
+                        labels[4].text
+                    )
+                for t in TEACHERS.keys():
+                    if t in labels[2].text:
+                        teacher = t
+                        break
+                if teacher:
+                    msg.channel = TEACHERS[teacher]
+                break
+        if msg:
+            self.browser.get(msg.url)
+            msg.text = self.browser.find_element_by_class_name(
+                "container-message-content").text
+            return msg
+        else:
+            raise Exception(f"Message of specified id {message_id} not found")
+
     def close(self):
         self.browser.close()
 
     def __del__(self):
         self.close()
-
-
-if __name__ == "__main__":
-    xd = Scraper()
-    xd.login()
-    msgs = xd.fetch_messages()
-    for x in msgs:
-        print(x)
-    del xd

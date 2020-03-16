@@ -6,7 +6,7 @@
     "regex": "regex to filter in",
     "discord": {
         "token": "bot token",
-        "guild": "server name"
+        "guild": "server id"
     },
     "register": {
         "login": "librus login",

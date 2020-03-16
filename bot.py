@@ -18,10 +18,14 @@ scrap = scraper.Scraper()
 
 @bot.event
 async def on_ready():
-    guild = discord.utils.get(bot.guilds, name=GUILD)
-    print(
+    guild = discord.utils.find(lambda g: g.id == GUILD, bot.guilds)
+    if guild:
+        print(
         f'{bot.user} is connected to {guild.name}, {guild.id}'
     )
+    else:
+        raise Exception("Desired guild not connected, tunring off")
+        exit()
     await bot.change_presence(activity=discord.Game(name='librus 😳😳😳 \n(not all languages supported)'))
     get_messages.start()
     post_messages.start()
@@ -32,6 +36,11 @@ async def turn_off(ctx):
     await ctx.send("Turning off.")
     await bot.close()
     exit()
+
+@bot.command(name='clean', help='Deletes specified number of messages')
+@commands.has_role('Admin')
+async def clean(ctx, cnt: int):
+    await ctx.channel.purge(limit=cnt)
 
 
 @tasks.loop(minutes=15)

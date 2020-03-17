@@ -19,17 +19,10 @@ scrap = scraper.Scraper()
 
 @bot.event
 async def on_ready():
-    guild = discord.utils.find(lambda g: g.id == GUILD, bot.guilds)
-    if guild:
-        print(
-            f'{bot.user} is connected to {guild.name}, {guild.id}'
-        )
-    else:
-        raise Exception("Desired guild not connected, tunring off")
-        exit()
     await bot.change_presence(activity=discord.Game(name='librus 😳😳😳 \n(not all languages supported)'))
     get_messages.start()
     post_messages.start()
+    print("Bot started")
 
 
 @bot.command(name='off', help='Turns the bot off')

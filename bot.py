@@ -61,7 +61,7 @@ async def get_messages():
 
 @tasks.loop(seconds=30)
 async def post_messages():
-    guild = discord.utils.get(bot.guilds, name=GUILD)
+    guild = discord.utils.find(bot.guilds, name=GUILD)
     cnt = 0
     while not messages_queue.empty():
         msg = await messages_queue.get()

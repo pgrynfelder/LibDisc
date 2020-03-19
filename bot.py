@@ -10,6 +10,7 @@ with open("config.json", encoding="utf_8") as f:
     config = json.load(f)
     TOKEN = config["discord"]["token"]
     GUILD = config["discord"]["guild"]
+    GUILD_ID = config["discord"]["guildid"]
     del config
 
 bot = commands.Bot(command_prefix='>')
@@ -19,7 +20,7 @@ scrap = scraper.Scraper()
 
 @bot.event
 async def on_ready():
-    guild = discord.utils.find(lambda g: g.id == GUILD, bot.guilds)
+    guild = discord.utils.find(lambda g: g.name == GUILD, bot.guilds)
     if guild:
         print(
             f'{bot.user} is connected to {guild.name}, {guild.id}'
@@ -68,7 +69,7 @@ async def get_messages():
 
 @tasks.loop(seconds=30)
 async def post_messages():
-    guild = discord.utils.get(bot.guilds, name=GUILD)
+    guild = discord.utils.find(lambda g: g.name == GUILD, bot.guilds)
     cnt = 0
     while not messages_queue.empty():
         msg = await messages_queue.get()

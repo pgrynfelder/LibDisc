@@ -24,6 +24,7 @@ log.setLevel(logging.INFO)
 handler_stdout = logging.StreamHandler(sys.stdout)
 log.addHandler(handler_stdout)
 
+
 @bot.event
 async def on_ready():
     guild = discord.utils.find(lambda g: g.name == GUILD, bot.guilds)
@@ -86,7 +87,7 @@ async def post_messages():
         sent = await channel.send(str(msg))
         await sent.pin()
         cnt += 1
-    log.info(f"Posted {cnt} messages")
+    if cnt: log.info(f"Posted {cnt} messages")
 
 if __name__ == "__main__":
     bot.run(TOKEN)

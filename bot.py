@@ -37,6 +37,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name='librus 😳😳😳 \n(not all languages supported)'))
     get_messages.start()
     post_messages.start()
+    print("Bot started")
 
 
 @bot.command(name='off', help='Turns the bot off')
@@ -77,7 +78,11 @@ async def get_messages():
 
 @tasks.loop(seconds=30)
 async def post_messages():
+<<<<<<< HEAD
     guild = discord.utils.find(lambda g: g.name == GUILD, bot.guilds)
+=======
+    guild = discord.utils.find(bot.guilds, name=GUILD)
+>>>>>>> 31a228fdd3867d1e4e227f553c6b8cb7796476b3
     cnt = 0
     while not messages_queue.empty():
         msg = await messages_queue.get()

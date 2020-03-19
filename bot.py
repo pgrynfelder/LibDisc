@@ -3,6 +3,8 @@ import random
 import discord
 import json
 import asyncio
+import logging
+import sys
 from discord.ext import commands, tasks
 import scraper
 
@@ -17,16 +19,20 @@ bot = commands.Bot(command_prefix='>')
 messages_queue = asyncio.Queue()
 scrap = scraper.Scraper()
 
+log = logging.getLogger()
+log.setLevel(logging.INFO)
+handler_stdout = logging.StreamHandler(sys.stdout)
+log.addHandler(handler_stdout)
 
 @bot.event
 async def on_ready():
     guild = discord.utils.find(lambda g: g.name == GUILD, bot.guilds)
     if guild:
-        print(
+        log.info(
             f'{bot.user} is connected to {guild.name}, {guild.id}'
         )
     else:
-        raise Exception("Desired guild not connected, tunring off")
+        raise Exception("Desired guild not connected, turning off")
         exit()
     await bot.change_presence(activity=discord.Game(name='librus 😳😳😳 \n(not all languages supported)'))
     get_messages.start()
@@ -36,6 +42,7 @@ async def on_ready():
 @bot.command(name='off', help='Turns the bot off')
 @commands.has_role('Admin')
 async def turn_off(ctx):
+    log.info("Turning off")
     await ctx.send("Turning off.")
     await bot.close()
     exit()
@@ -50,18 +57,19 @@ async def clean(ctx, cnt: int):
 @bot.command(name='fetch', help='Fetch message with specified link')
 @commands.has_role('Admin')
 async def fetch(ctx, message_id: str):
-    scrap.login()
-    msg = scrap.fetch_message(message_id)
-    sent = await ctx.channel.send(str(msg))
-    await sent.pin()
+    async with ctx.typing():
+        scrap.login()
+        msg = scrap.fetch_message(message_id)
+        sent = await ctx.channel.send(str(msg))
+        await sent.pin()
 
 
 @tasks.loop(minutes=15)
 async def get_messages():
-    print("15 minutes passed, checking for new librus messages")
+    log.info("15 minutes passed, checking for new librus messages")
     scrap.login()
     new_messages = scrap.fetch_unread()
-    print("Got " + str(len(new_messages)) + " new messages")
+    log.info("Got " + str(len(new_messages)) + " new messages")
     for msg in new_messages:
         await messages_queue.put(msg)
     del new_messages
@@ -77,7 +85,7 @@ async def post_messages():
         sent = await channel.send(str(msg))
         await sent.pin()
         cnt += 1
-    print(f"Posted {cnt} messages")
+    log.info(f"Posted {cnt} messages")
 
 if __name__ == "__main__":
     bot.run(TOKEN)

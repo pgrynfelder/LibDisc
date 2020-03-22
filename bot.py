@@ -4,6 +4,7 @@ import discord
 import json
 import asyncio
 import logging
+import logging.handlers
 import sys
 from discord.ext import commands, tasks
 import scraper

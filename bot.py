@@ -23,7 +23,7 @@ log = logging.getLogger()
 log.setLevel(logging.INFO)
 handler_stdout = logging.StreamHandler(sys.stdout)
 log.addHandler(handler_stdout)
-handler_file = logging.RotatingFileHandler(logfile = "libdisc.log", mode='a', maxBytes=5*1024*1024, backupCount=2)
+handler_file = logging.handlers.RotatingFileHandler("libdisc.log", mode='a', maxBytes=5*1024*1024, backupCount=2)
 log.addHandler(handler_file)
 
 

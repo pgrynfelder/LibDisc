@@ -2,3 +2,4 @@ config.json
 drivers
 .vscode
 *.pyc
+*.log

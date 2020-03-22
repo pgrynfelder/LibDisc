@@ -24,7 +24,12 @@ log = logging.getLogger()
 log.setLevel(logging.INFO)
 handler_stdout = logging.StreamHandler(sys.stdout)
 log.addHandler(handler_stdout)
-handler_file = logging.handlers.RotatingFileHandler("libdisc.log", mode='a', maxBytes=5*1024*1024, backupCount=2)
+
+log_formatter = logging.Formatter(
+    '%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s')
+handler_file = logging.handlers.RotatingFileHandler(
+    "libdisc.log", mode='a', maxBytes=5*1024*1024, backupCount=2)
+handler_file.setFormatter(log_formatter)
 log.addHandler(handler_file)
 
 
@@ -90,7 +95,8 @@ async def post_messages():
         sent = await channel.send(str(msg))
         await sent.pin()
         cnt += 1
-    if cnt: log.info(f"Posted {cnt} messages")
+    if cnt:
+        log.info(f"Posted {cnt} messages")
 
 if __name__ == "__main__":
     bot.run(TOKEN)

@@ -14,9 +14,9 @@ class Settings:
             self.DRIVER_NAME = data["driver"]["name"]
             self.DRIVER_PATH = os.path.join(os.path.abspath('.'), "drivers",
                                             data["driver"]["executable"])
-            self.TOKEN = config["discord"]["token"]
-            self.GUILD = config["discord"]["guild"]
-            self.GUILD_ID = config["discord"]["guild_id"]
+            self.TOKEN = data["discord"]["token"]
+            self.GUILD = data["discord"]["guild"]
+            self.GUILD_ID = data["discord"]["guild_id"]
 
 
 settings = Settings()

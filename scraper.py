@@ -124,7 +124,7 @@ class Scraper:
                     labels[3].find_element_by_tag_name("a").get_attribute(
                         "href"), labels[4].text)
                 for t in settings.TEACHERS.keys():
-                    if t in labels[2].text:
+                    if t in msg.teacher:
                         teacher = t
                         break
                 if teacher:

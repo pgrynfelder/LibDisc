@@ -9,12 +9,7 @@ import sys
 from discord.ext import commands, tasks
 import scraper
 
-with open("config.json", encoding="utf_8") as f:
-    config = json.load(f)
-    TOKEN = config["discord"]["token"]
-    GUILD = config["discord"]["guild"]
-    GUILD_ID = config["discord"]["guildid"]
-    del config
+from settings import settings
 
 bot = commands.Bot(command_prefix='>')
 messages_queue = asyncio.Queue()
@@ -27,23 +22,24 @@ log.addHandler(handler_stdout)
 
 log_formatter = logging.Formatter(
     '%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s')
-handler_file = logging.handlers.RotatingFileHandler(
-    "libdisc.log", mode='a', maxBytes=5*1024*1024, backupCount=2)
+handler_file = logging.handlers.RotatingFileHandler("libdisc.log",
+                                                    mode='a',
+                                                    maxBytes=5 * 1024 * 1024,
+                                                    backupCount=2)
 handler_file.setFormatter(log_formatter)
 log.addHandler(handler_file)
 
 
 @bot.event
 async def on_ready():
-    guild = discord.utils.find(lambda g: g.name == GUILD, bot.guilds)
+    guild = discord.utils.find(lambda g: g.name == settings.GUILD, bot.guilds)
     if guild:
-        log.info(
-            f'{bot.user} is connected to {guild.name}, {guild.id}'
-        )
+        log.info(f'{bot.user} is connected to {guild.name}, {guild.id}')
     else:
         raise Exception("Desired guild not connected, turning off")
         exit()
-    await bot.change_presence(activity=discord.Game(name='librus 😳😳😳 \n(not all languages supported)'))
+    await bot.change_presence(activity=discord.Game(
+        name='librus 😳😳😳 \n(not all languages supported)'))
     get_messages.start()
     post_messages.start()
     print("Bot started")
@@ -87,7 +83,7 @@ async def get_messages():
 
 @tasks.loop(seconds=30)
 async def post_messages():
-    guild = discord.utils.find(lambda g: g.name == GUILD, bot.guilds)
+    guild = discord.utils.find(lambda g: g.name == settings.GUILD, bot.guilds)
     cnt = 0
     while not messages_queue.empty():
         msg = await messages_queue.get()
@@ -98,5 +94,6 @@ async def post_messages():
     if cnt:
         log.info(f"Posted {cnt} messages")
 
+
 if __name__ == "__main__":
-    bot.run(TOKEN)
+    bot.run(settings.TOKEN)

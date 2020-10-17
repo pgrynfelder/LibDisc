@@ -3,3 +3,4 @@ drivers
 .vscode
 *.pyc
 *.log
+/env

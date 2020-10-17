@@ -1,16 +1,20 @@
 {
-    "teachers": {
-        "teacher name": "channel name",
-        "teacher2 name": "channel2 name"
-    },
-    "regex": "regex to filter in",
-    "discord": {
-        "token": "bot token",
-        "guild": "server name",
-        "guildid": "server id"
-    },
-    "register": {
-        "login": "librus login",
-        "password": "librus password"
-    }
+  "driver": {
+    "name": "chrome",
+    "executable": "chromedriver.exe"
+  },
+  "teachers": {
+    "teacher name": "channel name",
+    "teacher2 name": "channel2 name"
+  },
+  "regex": "regex to filter in",
+  "discord": {
+    "token": "bot token",
+    "guild": "server name",
+    "guildid": "server id"
+  },
+  "register": {
+    "login": "librus login",
+    "password": "librus password"
+  }
 }

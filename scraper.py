@@ -107,7 +107,7 @@ class Scraper:
             self.browser.get(msg.url)
             msg.text = self.browser.find_element_by_class_name(
                 "container-message-content").text
-            if re.match(settings.REGEX, msg.text) is not None:
+            if re.search(settings.REGEX, msg.text):
                 matched.append(msg)
         return matched
 

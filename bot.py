@@ -1,72 +1,58 @@
-import os
-import random
+from urllib.parse import urlparse
 import discord
-import json
 import asyncio
-import logging
-import logging.handlers
-import sys
 from discord.ext import commands, tasks
 import scraper
 
-from settings import settings
+from utils import settings, log
 
-bot = commands.Bot(command_prefix='>')
+client = commands.Bot(command_prefix='>')
 messages_queue = asyncio.Queue()
 scrap = scraper.Scraper()
 
-log = logging.getLogger()
-log.setLevel(logging.INFO)
-handler_stdout = logging.StreamHandler(sys.stdout)
-log.addHandler(handler_stdout)
 
-log_formatter = logging.Formatter(
-    '%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s')
-handler_file = logging.handlers.RotatingFileHandler("libdisc.log",
-                                                    mode='a',
-                                                    maxBytes=5 * 1024 * 1024,
-                                                    backupCount=2)
-handler_file.setFormatter(log_formatter)
-log.addHandler(handler_file)
-
-
-@bot.event
+@client.event
 async def on_ready():
-    guild = discord.utils.find(lambda g: g.name == settings.GUILD, bot.guilds)
+    guild = client.get_guild(settings.GUILD_ID)
     if guild:
-        log.info(f'{bot.user} is connected to {guild.name}, {guild.id}')
+        log.info(f'{client.user} is connected to {guild.name}, {guild.id}')
     else:
-        raise Exception("Desired guild not connected, turning off")
-        exit()
-    await bot.change_presence(activity=discord.Game(
-        name='librus 😳😳😳 \n(not all languages supported)'))
+        raise Exception("Desired guild not connected, turning off.")
+    await client.change_presence(activity=discord.Game(name=settings.STATUS))
     get_messages.start()
     post_messages.start()
-    print("Bot started")
+    log.info("Bot started")
 
 
-@bot.command(name='off', help='Turns the bot off')
+@client.command(name='off', help='Turns the bot off')
 @commands.has_role('Admin')
-async def turn_off(ctx):
-    log.info("Turning off")
-    await ctx.send("Turning off.")
-    await bot.close()
+async def turn_off(context):
+    log.info("Turning off.")
+    await context.send("Turning off.")
+    await client.close()
     exit()
 
 
-@bot.command(name='clean', help='Deletes specified number of messages')
+@client.command(name='clean', help='Deletes specified number of messages')
 @commands.has_role('Admin')
-async def clean(ctx, cnt: int):
-    await ctx.channel.purge(limit=cnt)
+async def clean(context, count: int):
+    await context.channel.purge(limit=count)
 
 
-@bot.command(name='fetch', help='Fetch message with specified link')
+@client.command(name='fetch', help='Fetch message with specified link')
 @commands.has_role('Admin')
-async def fetch(ctx, message_id: str):
-    async with ctx.typing():
+async def fetch(context, query: str):
+    if not query.isnumeric:
+        # Assume it's a valid URL structured like so: https://synergia.librus.pl/wiadomosci/1/5/2179753/f0
+        query = urlparse(query).path.split('/')[3]
+    async with context.typing():
         scrap.login()
-        msg = scrap.fetch_message(message_id)
-        sent = await ctx.channel.send(str(msg))
+        try:
+            msg = scrap.fetch_message(query)
+        except scraper.MessageNotFoundException as e:
+            await context.send(str(e))
+            return
+        sent = await context.send(str(msg))
         await sent.pin()
 
 
@@ -83,7 +69,7 @@ async def get_messages():
 
 @tasks.loop(seconds=30)
 async def post_messages():
-    guild = discord.utils.find(lambda g: g.name == settings.GUILD, bot.guilds)
+    guild = client.get_guild(settings.GUILD_ID)
     cnt = 0
     while not messages_queue.empty():
         msg = await messages_queue.get()
@@ -96,4 +82,4 @@ async def post_messages():
 
 
 if __name__ == "__main__":
-    bot.run(settings.TOKEN)
+    client.run(settings.TOKEN)

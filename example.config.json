@@ -11,7 +11,8 @@
   "discord": {
     "token": "bot token",
     "guild": "server name",
-    "guild_id": "server id"
+    "guild_id": "server id",
+    "status": "status message"
   },
   "register": {
     "login": "librus login",

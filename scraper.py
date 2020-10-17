@@ -4,7 +4,11 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from settings import settings
+from utils import settings, log
+
+
+class MessageNotFoundException(Exception):
+    pass
 
 
 class Message:
@@ -71,6 +75,7 @@ class Scraper:
         self.browser.find_element_by_id("Login").send_keys(settings.LOGIN)
         self.browser.find_element_by_id("Pass").send_keys(settings.PASSWORD)
         self.browser.find_element_by_id("LoginBtn").click()
+        log.info("Logged in to register.")
         return True
 
     def fetch_unread(self) -> list:
@@ -102,7 +107,7 @@ class Scraper:
             self.browser.get(msg.url)
             msg.text = self.browser.find_element_by_class_name(
                 "container-message-content").text
-            if re.search(settings.REGEX, msg.text):
+            if re.match(settings.REGEX, msg.text) is not None:
                 matched.append(msg)
         return matched
 
@@ -136,7 +141,8 @@ class Scraper:
                 "container-message-content").text
             return msg
         else:
-            raise Exception(f"Message of specified id {message_id} not found")
+            raise MessageNotFoundException(
+                f"Message of specified id {message_id} not found")
 
     def close(self):
         self.browser.close()
